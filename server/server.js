@@ -28,12 +28,10 @@ io.on('connection', (socket) => {
     //sends newMessage to all users
     io.emit('newMessage', generateMessage(message.from, message.text));
     callback('This from the server');
-    //brodcast sends to all users except the user that sent it
-    // socket.broadcast.emit('newMessage', {
-    //   from: message.from,
-    //   text: message.text,
-    //   createdAt: new Date().getTime()
-    // });
+  });
+
+  socket.on('createLocationMessage', (coords) => {
+    io.emit('newMessage', generateMessage('Admin', `${coords.latitude}, ${coords.longitude}`));
   });
 
   socket.on('disconnect', () => {
