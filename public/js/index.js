@@ -1,6 +1,22 @@
 var socket = io();
 
-//no arrow functions for mobile and cross-browser compatibility
+function scroll(){
+  //Selectors
+  var messages = jQuery('#messages');
+  var newMessage = messages.children('li:last-child');
+
+  //Heights
+  var clientHeight = messages.prop('clientHeight');
+  var scrollTop = messages.prop('scrollTop');
+  var scrollHeight = messages.prop('scrollHeight');
+  var newMessageHeight = newMessage.innerHeight();
+  var lastMessageHeight = newMessage.prev().innerHeight();
+
+  if(clientHeight + scrollTop + newMessageHeight + lastMessageHeight >= scrollHeight){
+    messages.scrollTop(scrollHeight);
+  }
+}
+
 //TODO: change to arrow functions in the future, when support is better
 
 //Initial Connection
@@ -15,21 +31,30 @@ socket.on('disconnect', function () {
 
 //Handles the recieve of a new message from other user
 socket.on('newMessage', function (message) {
-    console.log(message);
-    var li = jQuery('<li></li>');
-    li.text(`${message.from}: ${message.text}`);
+  
+  var formattedTime = moment(message.createdAt).format('h:mm a');
+  var template = jQuery('#message-template').html();
+  var html = Mustache.render(template,{
+    text: message.text,
+    from: message.from,
+    createdAt: formattedTime
+  });
 
-    jQuery('#messages').append(li);
+  jQuery('#messages').append(html);
+  scroll();
 });
 
 //Handles creation of URL for to view user loaction
 socket.on('newLocationMessage', function(message){
-  var li = jQuery('<li></li>');
-  var a = jQuery('<a target="_blank">My Current Location</a>');
-  li.text(`${message.from}: `);
-  a.attr('href', message.url);
-  li.append(a);
-  jQuery('#messages').append(li);  
+  var formattedTime = moment(message.createdAt).format('h:mm a');
+  var template = jQuery('#location-message-template').html();
+  var html = Mustache.render(template, {
+    from: message.from,
+    url: message.url,
+    createdAt: formattedTime
+  });
+  jQuery('#messages').append(html);
+  scroll();
 });
 
 
