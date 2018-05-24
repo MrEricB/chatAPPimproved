@@ -52,16 +52,25 @@ io.on('connection', (socket) => {
 
   //Handles messeages the user sends
   socket.on('createMessage', (message, callback) => {
-    console.log('createMessage: ', message);
+    var user = users.getUser(socket.id);
 
-    //sends newMessage to all users
-    io.emit('newMessage', generateMessage(message.from, message.text));
+    if(user && isRealString(message.text)){
+      //sends newMessage to all users in the room
+      io.to(user.room).emit('newMessage', generateMessage(user.name, message.text));
+    }
+
+
     callback();
   });
 
   //Handles user location stuff
   socket.on('createLocationMessage', (coords) => {
-    io.emit('newLocationMessage', generateLocationMessage('Admin',coords.latitude, coords.longitude));
+    var user = users.getUser(socket.id);
+
+    if(user){
+      io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name,coords.latitude, coords.longitude));
+    }
+
   });
 
   //Handles when user leaves chat
