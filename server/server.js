@@ -28,7 +28,7 @@ io.on('connection', (socket) => {
 
     //sends newMessage to all users
     io.emit('newMessage', generateMessage(message.from, message.text));
-    callback('This from the server');
+    callback();
   });
 
   //Handles user location stuff
